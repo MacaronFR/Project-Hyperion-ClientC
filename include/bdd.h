@@ -16,7 +16,10 @@ typedef struct queryResult{
 MYSQL *createHyperionBDD();
 queryResult *fetch(MYSQL *bdd);
 queryResult *selectProduct(MYSQL *bdd);
-queryResult *selectSpec(MYSQL *bdd, char *id);
+queryResult *selectRefSpec(MYSQL *bdd, char *id);
+queryResult *selectProdSpec(MYSQL *bdd, char *id);
+queryResult *selectSpec(MYSQL *bdd, char *id_prod, char *id_ref);
+void deleteRow(queryResult *result, int index);
 void freeResult(queryResult *tab);
 
 #endif //CLIENTC_BDD_H
