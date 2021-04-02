@@ -6,6 +6,7 @@ set(CMAKE_C_STANDARD 99)
 include_directories(/usr/include/libxml2)
 include_directories(include)
 
-add_executable(clientc src/main.c src/xml.c src/bdd.c)
+add_executable(clientc src/main.c src/xml.c src/bdd.c src/curl.c src/utils.c)
 target_link_libraries(clientc -lmariadb)
 target_link_libraries(clientc -lxml2)
+target_link_libraries(clientc -lcurl)

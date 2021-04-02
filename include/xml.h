@@ -3,9 +3,14 @@
 
 #include <libxml/tree.h>
 #include <bdd.h>
+#include <time.h>
 
+#define BOUGHT 1
+#define SOLD 2
+
+xmlDocPtr createProductsXml();
 xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products);
 char ***prepareSpec(queryResult *spec, char **model, char **mark);
-xmlNodePtr newProduct(char *mark, char *type, char *model, char ***specification);
+xmlNodePtr newProduct(char *mark, char *type, char *model, char*buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag);
 
 #endif //CLIENTC_XML_H

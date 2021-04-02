@@ -1,25 +1,19 @@
 #include <xml.h>
-#include <bdd.h>
 #include <libxml/parser.h>
+#include <curl.h>
 
 int main(){
-	xmlNodePtr *products;
-	char *mark, *type, *model;
-	char ***spec;
-	MYSQL *bdd = createHyperionBDD();
-	queryResult *tab = selectProduct(bdd);
-	products = prepareProductList(bdd, tab);
-	unsigned long long int nproduct = tab->rows;
-	xmlDocPtr doc = NULL;
-	xmlNodePtr root;
-	doc = xmlNewDoc(BAD_CAST "1.0");
-	root = xmlNewNode(NULL, BAD_CAST "products");
-	xmlDocSetRootElement(doc, root);
-	//xmlCreateIntSubset(doc, BAD_CAST"products", NULL, BAD_CAST "tree.dtd");
-	for(int i = 0; i < nproduct; ++i){
-		xmlAddChild(root, products[i]);
-	}
+	time_t now;
+	time(&now);
+	struct tm *local = localtime(&now);
+	char *id = "01basti";
+	char *filename = malloc(strlen(id) + 9);
+	sprintf(filename, "%s%02d%02d.xml", id, local->tm_mon, local->tm_year % 100);
+	sendFile(filename);
+	sprintf(filename, "%s%02d%02d.xml", id, local->tm_mon+1, local->tm_year % 100);
+	xmlDocPtr doc = createProductsXml();
 	xmlSaveFormatFileEnc("-", doc, "UTF-8", 1);
+	xmlSaveFormatFileEnc(filename, doc, "UTF-8", 1);
 	xmlFreeDoc(doc);
 	xmlCleanupParser();
 	return 0;

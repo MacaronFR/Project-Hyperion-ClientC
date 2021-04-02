@@ -1,15 +1,50 @@
 #include <xml.h>
 
+xmlDocPtr createProductsXml(){
+	xmlNodePtr *products;
+	MYSQL *bdd = createHyperionBDD();
+	queryResult *tab = selectProduct(bdd);
+	products = prepareProductList(bdd, tab);
+	unsigned long long int nproduct = tab->rows;
+	xmlDocPtr doc = NULL;
+	xmlNodePtr root;
+	doc = xmlNewDoc(BAD_CAST "1.0");
+	root = xmlNewNode(NULL, BAD_CAST "products");
+	xmlDocSetRootElement(doc, root);
+	for(int i = 0; i < nproduct; ++i){
+		xmlAddChild(root, products[i]);
+	}
+	return doc;
+}
+
 xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 	xmlNodePtr *xmlProducts = malloc(sizeof(xmlNodePtr) * (products->rows + 1));
+	time_t now;
+	time(&now);
+	struct tm *local = localtime(&now);
+	char *month = malloc(3);
+	sprintf(month, "%02d", local->tm_mon+1);
 	queryResult *bddSpec;
 	char ***spec;
-	char *mark, *type, *model;
+	char *mark, *type, *model, *bought, *sold, *buying_price, *selling_price;
+	int prod_flag = 0;
 	for(int i = 0; i < products->rows; ++i){
 		bddSpec = selectSpec(bdd, products->value[i][3], products->value[i][5]);
 		type = products->value[i][0];
+		bought = products->value[i][6];
+		sold = products->value[i][7];
+		buying_price = products->value[i][2];
+		selling_price = products->value[i][1];
 		spec = prepareSpec(bddSpec, &model, &mark);
-		xmlProducts[i] = newProduct(mark, type, model, spec);
+		if(sold == NULL){
+			prod_flag = BOUGHT;
+		}else{
+			if(strncmp(month, products->value[i][6] + 5, 2) == 0)
+				prod_flag |= BOUGHT;
+			if(strncmp(month, products->value[i][7] + 5, 2) == 0)
+				prod_flag |= SOLD;
+		}
+		xmlProducts[i] = newProduct(mark, type, model, bought, sold, buying_price, selling_price, spec, prod_flag);
 		free(spec);
 		freeResult(bddSpec);
 	}
@@ -34,7 +69,7 @@ char ***prepareSpec(queryResult *spec, char **model, char **mark){
 	return result;
 }
 
-xmlNodePtr newProduct(char *mark, char *type, char *model, char ***specification){
+xmlNodePtr newProduct(char *mark, char *type, char *model, char *buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag){
     xmlNodePtr product = NULL;
     xmlNodePtr spec;
     int i = 0;
@@ -43,6 +78,14 @@ xmlNodePtr newProduct(char *mark, char *type, char *model, char ***specification
         xmlNewProp(product, BAD_CAST "mark", BAD_CAST mark);
         xmlNewProp(product, BAD_CAST "model", BAD_CAST model);
         xmlNewProp(product, BAD_CAST "type", BAD_CAST type);
+        xmlNewProp(product, BAD_CAST "buying_date", BAD_CAST buying_date);
+        xmlNewProp(product, BAD_CAST "selling_date", BAD_CAST selling_date);
+        xmlNewProp(product, BAD_CAST "buying_price", BAD_CAST buying_price);
+        xmlNewProp(product, BAD_CAST "selling_price", BAD_CAST selling_price);
+		if(flag & BOUGHT)
+			xmlNewProp(product, BAD_CAST "bought", BAD_CAST"yes");
+		if(flag & SOLD)
+			xmlNewProp(product, BAD_CAST "sold", BAD_CAST"yes");
         if(specification != NULL){
             while(specification[i] != NULL){
                 spec = xmlNewChild(product, NULL, BAD_CAST"specification", NULL);

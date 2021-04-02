@@ -2,6 +2,7 @@
 
 MYSQL *createHyperionBDD(){
 	MYSQL *mysql = NULL;
+	char **credentials = get_credentials("[BDD]");
 	if((mysql = mysql_init(NULL)) == NULL){
 		fprintf(stderr, "Error initializing MYSQL instance");
 		return NULL;
@@ -10,7 +11,7 @@ MYSQL *createHyperionBDD(){
 //    mysql_optionsv(mysql, MYSQL_OPT_SSL_ENFORCE, &yes);
 	if(mysql_real_connect(
 			mysql,
-			"hyperion.dev.macaron-dev.fr", "creader", "creaderdeb1", "HYPERION", 3306,
+			credentials[0], credentials[1], credentials[2], credentials[3], strtol(credentials[4], NULL, 10),
 			NULL, CLIENT_REMEMBER_OPTIONS
 	) == NULL){
 		fprintf(stderr, "Error %u : %s", mysql_errno(mysql), mysql_error(mysql));
@@ -37,8 +38,12 @@ queryResult *fetch(MYSQL *bdd){
 		row = mysql_fetch_row(res);
 		tab->value[i] = malloc(sizeof(char *) * tab->fields);
 		for(int j = 0; j < tab->fields; ++j){
-			tab->value[i][j] = malloc(strlen(row[j]) + 1);
-			strcpy(tab->value[i][j], row[j]);
+			if(row[j] != NULL){
+				tab->value[i][j] = malloc(strlen(row[j]) + 1);
+				strcpy(tab->value[i][j], row[j]);
+			}else{
+				tab->value[i][j] = NULL;
+			}
 		}
 	}
 	mysql_free_result(res);
@@ -46,7 +51,7 @@ queryResult *fetch(MYSQL *bdd){
 }
 
 queryResult *selectProduct(MYSQL *bdd){
-	const char *query_product = "SELECT T.type, PROD.selling_price, PROD.buying_price, PROD.id_product, state, REF.id_product as id_ref FROM PRODUCTS PROD INNER JOIN REFERENCE_PRODUCTS REF ON PROD.id_ref = REF.id_product INNER JOIN TYPES T on REF.type = T.id_type;";
+	const char *query_product = "SELECT T.type, PROD.selling_price, PROD.buying_price, PROD.id_product, state, REF.id_product, buying_date, selling_date as id_ref FROM PRODUCTS PROD INNER JOIN REFERENCE_PRODUCTS REF ON PROD.id_ref = REF.id_product INNER JOIN TYPES T on REF.type = T.id_type WHERE MONTH(PROD.buying_date)=MONTH(CURRENT_DATE) OR MONTH(PROD.selling_date)=MONTH(CURRENT_DATE)";
 	mysql_query(bdd, query_product);
 	return fetch(bdd);
 }
