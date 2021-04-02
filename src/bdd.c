@@ -1,6 +1,7 @@
 #include <bdd.h>
 
 MYSQL *createHyperionBDD(){
+	int i;
 	MYSQL *mysql = NULL;
 	char **credentials = get_credentials("[BDD]");
 	if((mysql = mysql_init(NULL)) == NULL){
@@ -16,6 +17,11 @@ MYSQL *createHyperionBDD(){
 	) == NULL){
 		fprintf(stderr, "Error %u : %s", mysql_errno(mysql), mysql_error(mysql));
 		return NULL;
+	}
+	i = 0;
+	while(credentials[i] != NULL){
+		free(credentials[i]);
+		++i;
 	}
 	return mysql;
 }
@@ -63,6 +69,7 @@ queryResult *selectRefSpec(MYSQL *bdd, char *id){
 	strcat(prepared_query, id);
 	strcat(prepared_query, ";");
 	mysql_query(bdd, prepared_query);
+	free(prepared_query);
 	return fetch(bdd);
 }
 
@@ -73,7 +80,7 @@ queryResult *selectProdSpec(MYSQL *bdd, char *id){
 	strcat(prepared_query, id);
 	strcat(prepared_query, ";");
 	mysql_query(bdd, prepared_query);
-	//free(prepared_query);
+	free(prepared_query);
 	return fetch(bdd);
 }
 

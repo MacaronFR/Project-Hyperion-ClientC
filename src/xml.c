@@ -8,12 +8,15 @@ xmlDocPtr createProductsXml(){
 	unsigned long long int nproduct = tab->rows;
 	xmlDocPtr doc = NULL;
 	xmlNodePtr root;
+	freeResult(tab);
 	doc = xmlNewDoc(BAD_CAST "1.0");
 	root = xmlNewNode(NULL, BAD_CAST "products");
 	xmlDocSetRootElement(doc, root);
 	for(int i = 0; i < nproduct; ++i){
 		xmlAddChild(root, products[i]);
 	}
+	free(products);
+	mysql_close(bdd);
 	return doc;
 }
 
@@ -48,6 +51,7 @@ xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 		free(spec);
 		freeResult(bddSpec);
 	}
+	free(month);
 	return xmlProducts;
 }
 

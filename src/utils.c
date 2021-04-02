@@ -2,6 +2,7 @@
 
 char **get_credentials(char *section){
 	FILE *f = fopen("credentials", "rb");
+	void *tmp;
 	char **credentials = NULL;
 	int line = 0;
 	if(f == NULL){
@@ -22,6 +23,7 @@ char **get_credentials(char *section){
 		credentials[line-1] = malloc(strlen(buf) + 1);
 		strcpy(credentials[line-1], buf);
 	}while(buf[0] != 0);
+	free(credentials[line-1]);
 	credentials[line-1] = NULL;
 	return credentials;
 }

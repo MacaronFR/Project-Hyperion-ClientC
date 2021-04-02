@@ -17,5 +17,6 @@ int main(){
 	xmlSaveFormatFileEnc(filename, doc, "UTF-8", 1);
 	xmlFreeDoc(doc);
 	xmlCleanupParser();
+	free(filename);
 	return 0;
 }
