@@ -6,6 +6,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-void sendFile(char *file);
+int sendFile(char *file);
 
 #endif //CLIENTC_CURL_H

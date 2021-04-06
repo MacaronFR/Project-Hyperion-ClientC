@@ -1,8 +1,7 @@
 #include <utils.h>
 
 char **get_credentials(char *section){
-	FILE *f = fopen("credentials", "rb");
-	void *tmp;
+	FILE *f = fopen("/etc/hyperion/database_saver.conf", "rb");
 	char **credentials = NULL;
 	int line = 0;
 	if(f == NULL){
