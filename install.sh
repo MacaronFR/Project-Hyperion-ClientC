@@ -71,13 +71,17 @@ echo "Deposit ${id}${name} test SFTP connection" > "${xml}sftp.test"
 hyperion_database_saver --test BDD
 if [ $? != 0 ]
 then echo "Cannot connect Database"
-else echo "Connection successfull to Database"
+else echo "Connection successful to Database"
 fi
 hyperion_database_saver --test SFTP
 if [ $? != 0 ]
 then echo "Cannot connect SFTP"
-else echo "Connection successfull to SFTP"
+else echo "Connection successful to SFTP"
 fi
+
+#create cron task
+
+echo "30 23 * * * hyperion_database_saver" >> /var/spool/cron/crontabs/root
 
 #exit OK
 exit 0
