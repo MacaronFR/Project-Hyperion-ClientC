@@ -4,22 +4,21 @@ int sendFile(char *file){
 	CURL *curl;
 	CURLcode res;
 	FILE *f;
-	curl_off_t  fsize;
 	int i = 0;
 	char **info = get_credentials("[DEPOSIT]");
 	char **credentials = get_credentials("[SFTP]");
-	char *remote_path = "/web/hyperion/";
+	char *remote_path = "/ftp/";
 	char *url = malloc(strlen(credentials[0]) + strlen(credentials[3]) + strlen(remote_path) + strlen(file) + 9);
-	char *localfile = malloc(strlen(info[2]) + strlen(file) + 1);
-	strcpy(localfile, info[2]);
-	strcat(localfile, file);
+	char *local_file = malloc(strlen(info[2]) + strlen(file) + 1);
+	strcpy(local_file, info[2]);
+	strcat(local_file, file);
 	strcpy(url, "sftp://");
 	strcat(url, credentials[0]);
 	strcat(url, ":");
 	strcat(url, credentials[3]);
 	strcat(url, remote_path);
 	strcat(url, file);
-	f = fopen(localfile, "rb");
+	f = fopen(local_file, "rb");
 	if(f == NULL)
         return 1;
 	curl_global_init(CURL_GLOBAL_ALL);
