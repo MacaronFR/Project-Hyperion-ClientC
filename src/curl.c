@@ -7,7 +7,7 @@ int sendFile(char *file){
 	int i = 0;
 	char **info = get_credentials("[DEPOSIT]");
 	char **credentials = get_credentials("[SFTP]");
-	char *remote_path = "/ftp/";
+	char *remote_path = info[3];
 	char *url = malloc(strlen(credentials[0]) + strlen(credentials[3]) + strlen(remote_path) + strlen(file) + 9);
 	char *local_file = malloc(strlen(info[2]) + strlen(file) + 1);
 	strcpy(local_file, info[2]);

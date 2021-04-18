@@ -1,5 +1,6 @@
 #!/bin/bash
 #must run in sudo
+DIR=$(dirname "$0")
 if [ "$EUID" -ne 0 ]
 	then echo "Please run script as root"
 	#exit error
@@ -11,17 +12,20 @@ read -p "Where install binaries ? (default in /usr/bin/)" bindir
 if [ -z "$bindir" ]
 then bindir="/usr/bin/"
 fi
+if [ "${bindir: -1}" != "/" ]
+then bindir="${bindir}/"
+fi
 #cmake command
-cmake CMakeLists.txt
+cmake "$DIR/CMakeLists.txt"
 #create bin dir if not exist
 mkdir -p "$bindir"
 #make
+cd $DIR
 make
 #move result in bin dir
-mv clientc hyperion_database_saver
-mv hyperion_database_saver "$bindir"
+mv "$DIR/clientc" "${bindir}hyperion_database_saver"
 #delete all build file
-rm CMakeCache.txt CMakeFiles/ cmake_install.cmake Makefile -R
+rm "$DIR/CMakeCache.txt" "$DIR/CMakeFiles/" "$DIR/cmake_install.cmake" "$DIR/Makefile" -R
 
 #########################################
 #CREDENTIALS
@@ -29,7 +33,8 @@ rm CMakeCache.txt CMakeFiles/ cmake_install.cmake Makefile -R
 #deposit credentials
 read -p "Deposit ID : " id
 read -p "Deposit name : " name
-read -p "XML saving path (default /var/hyperion/xml/): " xml
+read -p "XML saving path (default /var/hyperion/xml/) : " xml
+read -p "Remote XML saving path : " remoteXML
 
 if [ -z "$xml" ]
 then xml="/var/hyperion/xml/"
@@ -38,30 +43,35 @@ fi
 if [ "${xml: -1}" != "/" ]
 then xml="${xml}/"
 fi
+if [ "${remoteXML: -1}" != "/" ]
+then remoteXML="${remoteXML}/"
+fi
 mkdir -p "$xml"
 
-depositcredentials="[DEPOSIT]\n${id}\n${name}\n${xml}\n\n"
+depositcredentials="[DEPOSIT]\n${id}\n${name}\n${xml}\n${remoteXML}\n\n"
 
 #DB credentials
+echo -e "\n"
 read -p "Database host : " bddhost
 read -p "Database port : " bddport
 read -p "Database name : " bdd
 read -p "Database username : " bdduser
-read -p "Database password : " bddpasswd
+read -s -p "Database password : " bddpasswd
 bddcredentials="[BDD]\n${bddhost}\n${bdduser}\n${bddpasswd}\n${bdd}\n${bddport}\n\n"
 
 #SFTP credentials
+echo -e "\n\n"
 read -p "SFTP Host : " sftphost
 read -p "SFTP port : " sftpport
 read -p "SFTP username : " sftpuser
-read -p "SFTP password : " sftppasswd
+read -s -p "SFTP password : " sftppasswd
 sftpcredentials="[SFTP]\n${sftphost}\n${sftpuser}\n${sftppasswd}\n${sftpport}\n\n"
 
 credentials="${bddcredentials}${sftpcredentials}${depositcredentials}"
 
 echo -e "\n\nIf you misspelled something, all setup info is in the file located at /etc/hyperion/database_saver.conf\n\n"
 
-#Write credentials to conf file
+# Write credentials to conf file
 mkdir -p "/etc/hyperion"
 echo -e "$credentials" > "/etc/hyperion/database_saver.conf"
 
