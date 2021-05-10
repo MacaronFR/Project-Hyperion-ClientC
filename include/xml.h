@@ -10,7 +10,7 @@
 
 xmlDocPtr createProductsXml();
 xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products);
-char ***prepareSpec(queryResult *spec, char **model, char **mark);
-xmlNodePtr newProduct(char *mark, char *type, char *model, char*buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag);
+char ***prepareSpec(queryResult *spec, char **model, char **brand);
+xmlNodePtr newProduct(char *brand, char *type, char *model, char*buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag);
 
 #endif //CLIENTC_XML_H

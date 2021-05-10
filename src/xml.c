@@ -29,7 +29,7 @@ xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 	sprintf(month, "%02d", local->tm_mon+1);
 	queryResult *bddSpec;
 	char ***spec;
-	char *mark, *type, *model, *bought, *sold, *buying_price, *selling_price;
+	char *brand, *type, *model, *bought, *sold, *buying_price, *selling_price;
 	int prod_flag = 0;
 	for(int i = 0; i < products->rows; ++i){
 		bddSpec = selectSpec(bdd, products->value[i][3], products->value[i][5]);
@@ -38,7 +38,7 @@ xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 		sold = products->value[i][7];
 		buying_price = products->value[i][2];
 		selling_price = products->value[i][1];
-		spec = prepareSpec(bddSpec, &model, &mark);
+		spec = prepareSpec(bddSpec, &model, &brand);
 		if(sold == NULL){
 			prod_flag = BOUGHT;
 		}else{
@@ -47,7 +47,7 @@ xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 			if(strncmp(month, products->value[i][7] + 5, 2) == 0)
 				prod_flag |= SOLD;
 		}
-		xmlProducts[i] = newProduct(mark, type, model, bought, sold, buying_price, selling_price, spec, prod_flag);
+		xmlProducts[i] = newProduct(brand, type, model, bought, sold, buying_price, selling_price, spec, prod_flag);
 		free(spec);
 		freeResult(bddSpec);
 	}
@@ -55,12 +55,12 @@ xmlNodePtr *prepareProductList(MYSQL *bdd, queryResult *products){
 	return xmlProducts;
 }
 
-char ***prepareSpec(queryResult *spec, char **model, char **mark){
+char ***prepareSpec(queryResult *spec, char **model, char **brand){
 	int delta = 0;
 	char *** result = malloc(sizeof(char **) * spec->rows - 2);
 	for(int j = 0; j < spec->rows; ++j){
-		if(strcmp(spec->value[j][0], "mark") == 0){
-			*mark = spec->value[j][1];
+		if(strcmp(spec->value[j][0], "brand") == 0){
+			*brand = spec->value[j][1];
 			delta++;
 		}else if(strcmp(spec->value[j][0], "model") == 0){
 			*model = spec->value[j][1];
@@ -73,13 +73,13 @@ char ***prepareSpec(queryResult *spec, char **model, char **mark){
 	return result;
 }
 
-xmlNodePtr newProduct(char *mark, char *type, char *model, char *buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag){
+xmlNodePtr newProduct(char *brand, char *type, char *model, char *buying_date, char *selling_date, char *buying_price, char *selling_price, char ***specification, int flag){
     xmlNodePtr product = NULL;
     xmlNodePtr spec;
     int i = 0;
-    if(mark != NULL && type != NULL && model != NULL) {
+    if(brand != NULL && type != NULL && model != NULL) {
         product = xmlNewNode(NULL, BAD_CAST "product");
-        xmlNewProp(product, BAD_CAST "mark", BAD_CAST mark);
+        xmlNewProp(product, BAD_CAST "brand", BAD_CAST brand);
         xmlNewProp(product, BAD_CAST "model", BAD_CAST model);
         xmlNewProp(product, BAD_CAST "type", BAD_CAST type);
         xmlNewProp(product, BAD_CAST "buying_date", BAD_CAST buying_date);
