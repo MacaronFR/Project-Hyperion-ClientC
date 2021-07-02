@@ -63,7 +63,7 @@ queryResult *selectProduct(MYSQL *bdd){
 }
 
 queryResult *selectRefSpec(MYSQL *bdd, char *id){
-	const char *query_spec = "SELECT name, value FROM REF_HAVE_SPEC INNER JOIN SPECIFICATION S on REF_HAVE_SPEC.id_spec = S.id_specification WHERE id_product=";
+	const char *query_spec = "SELECT name, S.value FROM REF_HAVE_SPEC INNER JOIN SPECIFICATION S on REF_HAVE_SPEC.id_spec = S.id_specification WHERE id_product=";
 	char *prepared_query = malloc(strlen(query_spec) + strlen(id) + 2);
 	strcpy(prepared_query, query_spec);
 	strcat(prepared_query, id);
@@ -74,7 +74,7 @@ queryResult *selectRefSpec(MYSQL *bdd, char *id){
 }
 
 queryResult *selectProdSpec(MYSQL *bdd, char *id){
-	const char *query_spec = "SELECT name, value FROM PRODUCT_HAVE_SPEC INNER JOIN SPECIFICATION S on PRODUCT_HAVE_SPEC.id_spec = S.id_specification WHERE id_product=";
+	const char *query_spec = "SELECT name, S.value FROM PRODUCT_HAVE_SPEC INNER JOIN SPECIFICATION S on PRODUCT_HAVE_SPEC.id_spec = S.id_specification WHERE id_product=";
 	char *prepared_query = malloc(strlen(query_spec) + strlen(id) + 2);
 	strcpy(prepared_query, query_spec);
 	strcat(prepared_query, id);
